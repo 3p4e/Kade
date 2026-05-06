@@ -1,5 +1,17 @@
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# Optional corporate-proxy CA bundle (see backend/Dockerfile). Alpine ships
+# ca-certificates baked in; we just append our extras to the system bundle.
+COPY extra-cas.cr[t] /tmp/extra-cas.crt
+RUN if [ -s /tmp/extra-cas.crt ]; then \
+      cat /tmp/extra-cas.crt >> /etc/ssl/certs/ca-certificates.crt && \
+      cat /tmp/extra-cas.crt >> /etc/ssl/cert.pem 2>/dev/null || true; \
+      echo "Installed extra CAs"; \
+    fi && rm -f /tmp/extra-cas.crt
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt \
+    SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
 COPY package.json ./
 RUN npm install
 COPY . .

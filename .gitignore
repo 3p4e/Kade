@@ -35,3 +35,7 @@ db_data/
 
 # Docker
 .docker/
+
+# Local proxy / corporate CA bundles dropped into build contexts (see README)
+backend/extra-cas.crt
+frontend/extra-cas.crt
